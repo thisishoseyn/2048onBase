@@ -15,7 +15,7 @@ This project is built from scratch with a **security-first** approach for the We
 
 ---
 
-✨ Features:
+## ✨ Features
 
 Fluid 2048 Gameplay: Smooth transitions, immediate keyboard arrow tracking (W, A, S, D), and full mobile responsive touch/swipe gestures.
 
@@ -27,7 +27,8 @@ Glassmorphic UI / Theme Toggle: Supports a beautiful dynamic shift between Neo-D
 
 ---
 
-🛠️ Local Development
+## 🛠️ Local Development
+
 Since this project has no external Node.js dependencies, you can run it locally in seconds:
 
 1. Clone the repository:
@@ -37,7 +38,8 @@ Since this project has no external Node.js dependencies, you can run it locally 
 
 ---
 
-📄 License
+## 📄 License
+
 This project is open-source and available under the MIT License. Made with ❤️ by Hoseyn.
 
 ---
