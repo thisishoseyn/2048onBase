@@ -15,6 +15,32 @@ This project is built from scratch with a **security-first** approach for the We
 
 ---
 
+✨ Features
+Fluid 2048 Gameplay: Smooth transitions, immediate keyboard arrow tracking (W, A, S, D), and full mobile responsive touch/swipe gestures.
+
+Immediate Color Burst: The vibrant visual themes initiate immediately from tile 4 onwards for an immersive arcade feel.
+
+On-Chain Leaderboard: Fetches and filters real-time transaction logs from the Base network to display a decentralized top-5 player ranking.
+
+Glassmorphic UI / Theme Toggle: Supports a beautiful dynamic shift between Neo-Dark and High-Contrast Light Mode with persistent layer blur effects.
+
+---
+
+🛠️ Local Development
+Since this project has no external Node.js dependencies, you can run it locally in seconds:
+
+1. Clone the repository:
+   git clone https://github.com/thisishoseyn/2048onBase.git
+
+2. Open 2048.html directly in any modern browser.
+
+---
+
+📄 License
+This project is open-source and available under the MIT License. Made with ❤️ by Hoseyn.
+
+---
+
 ## 📜 Smart Contract Details
 
 The game interacts with a verified high-score contract deployed on the **Base Mainnet**:
@@ -31,21 +57,3 @@ The game interacts with a verified high-score contract deployed on the **Base Ma
     "event NewHighScore(address indexed player, uint256 score, uint256 timestamp)"
 ]
 
-✨ Features
-Fluid 2048 Gameplay: Smooth transitions, immediate keyboard arrow tracking (W, A, S, D), and full mobile responsive touch/swipe gestures.
-
-Immediate Color Burst: The vibrant visual themes initiate immediately from tile 4 onwards for an immersive arcade feel.
-
-On-Chain Leaderboard: Fetches and filters real-time transaction logs from the Base network to display a decentralized top-5 player ranking.
-
-Glassmorphic UI / Theme Toggle: Supports a beautiful dynamic shift between Neo-Dark and High-Contrast Light Mode with persistent layer blur effects.
-
-🛠️ Local Development
-Since this project has no external Node.js dependencies, you can run it locally in seconds:
-
-1. Clone the repository:
-   git clone https://github.com/thisishoseyn/2048onBase.git
-2- Open 2048.html directly in any modern browser.
-
-📄 License
-This project is open-source and available under the MIT License. Made with ❤️ by Hoseyn.
