@@ -15,7 +15,8 @@ This project is built from scratch with a **security-first** approach for the We
 
 ---
 
-✨ Features
+✨ Features:
+
 Fluid 2048 Gameplay: Smooth transitions, immediate keyboard arrow tracking (W, A, S, D), and full mobile responsive touch/swipe gestures.
 
 Immediate Color Burst: The vibrant visual themes initiate immediately from tile 4 onwards for an immersive arcade feel.
