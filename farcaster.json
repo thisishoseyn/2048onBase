@@ -1,0 +1,14 @@
+{
+  "accountAssociation": {
+    "header": "eyJmaWQiOiA5OTk5OTksICJkaXJlY3RvcnkiOiAiaHR0cHM6Ly8yMDQ4b25iYXNlLW11cmV4LnZlcmNlbC5hcHAiLCAic2lnbmF0dXJlIjogIjB4MDAifQ=="
+  },
+  "frame": {
+    "version": "1",
+    "name": "Base On-Chain 2048",
+    "iconUrl": "https://raw.githubusercontent.com/thisishoseyn/2048onBase/main/screenshot.png",
+    "homeUrl": "https://2048onbase-murex.vercel.app/",
+    "imageUrl": "https://raw.githubusercontent.com/thisishoseyn/2048onBase/main/screenshot.png",
+    "buttonTitle": "Play Arena",
+    "webhookUrl": "https://2048onbase-murex.vercel.app/api/webhook"
+  }
+}
