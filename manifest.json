@@ -1,7 +1,15 @@
 {
-  "name": "Base On-Chain 2048",
-  "icon": "https://2048onbase-eosin.vercel.app/icon.png",
-  "description": "Play 2048 on Base blockchain and submit your score!",
-  "aboutUrl": "https://github.com/thisishoseyn/2048onBase",
-  "statusUrl": "https://2048onbase-eosin.vercel.app"
+  "accountAssociation": {
+    "header": "eyJmaWQiOjE0MzM0LCJ0eXBlIjoianVzdGlmeSIsImtleSI6IjB4YmI5In0",
+    "payload": "eyJkaXNwbGF5TmFtZSI6IjIwNDggT24gQmFzZSJ9",
+    "signature": "0x4a4b4c..."
+  },
+  "frame": {
+    "version": "1",
+    "name": "Base On-Chain 2048",
+    "iconUrl": "https://2048onbase-eosin.vercel.app/icon.png",
+    "splashImageUrl": "https://raw.githubusercontent.com/thisishoseyn/2048onBase/main/frame-image.png",
+    "splashBackgroundColor": "#10141e",
+    "webhookUrl": "https://2048onbase-eosin.vercel.app/api/webhook"
+  }
 }
