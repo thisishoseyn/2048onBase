@@ -3,19 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Base On-Chain 2048 - Farcaster Edition</title>
+    <title>Base On-Chain 2048</title>
     
     <!-- Farcaster Frame v2 Meta Tags -->
-    <meta property="fc:frame" content="vnext" />
-    <meta property="fc:frame:image" content="https://raw.githubusercontent.com/thisishoseyn/2048onBase/main/frame-image.png" />
+    <meta property="fc:frame" content="v2" />
+    <meta property="fc:frame:image" content="https://raw.githubusercontent.com/thisishoseyn/2048onBase/main/screenshot.png" />
     <meta property="fc:frame:button:1" content="Play Arena" />
-    <meta property="fc:frame:button:1:action" content="splash" />
-    
-    <!-- External SDKs -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js" type="text/javascript"></script>
-    <!-- Farcaster Frame SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@farcaster/frame-sdk@0.0.17/dist/index.min.js"></script>
+    <meta property="fc:frame:button:1:action" content="link" />
+    <meta property="fc:frame:button:1:target" content="https://thisishoseyn.github.io/2048onBase/" />
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js" type="text/javascript"></script>
     <style>
         /* Modern Design System Variables */
         :root {
@@ -84,25 +81,38 @@
         }
         .theme-toggle:hover { transform: scale(1.05); }
 
-        .farcaster-user-badge {
+        /* Floating Social Sidebar - Corner */
+        .floating-socials {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
             display: flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(138, 92, 246, 0.1);
-            border: 1px solid rgba(138, 92, 246, 0.3);
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #a78bfa;
-            margin-bottom: 15px;
-            display: none;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 1000;
         }
-        .farcaster-avatar {
-            width: 20px;
-            height: 20px;
+        .floating-btn {
+            width: 46px;
+            height: 46px;
             border-radius: 50%;
-            border: 1px solid rgba(138, 92, 246, 0.5);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: var(--glass-shadow);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-decoration: none;
+        }
+        .floating-btn:hover {
+            transform: scale(1.15) translateY(-3px);
+            background: var(--primary);
+            color: white;
+            border-color: transparent;
+            box-shadow: var(--primary-glow);
         }
 
         .container {
@@ -300,49 +310,65 @@
         .player-addr { font-family: monospace; color: var(--text-muted); }
         .player-score { font-weight: 800; color: #10b981; }
 
-        /* Social Badges and Notice Styling */
+        .security-notice {
+            margin-top: 25px;
+            background: rgba(16, 185, 129, 0.05);
+            border: 1px dashed rgba(16, 185, 129, 0.2);
+            border-radius: 16px;
+            padding: 15px;
+            text-align: left;
+        }
+        .security-title { font-size: 13px; font-weight: 700; color: #10b981; margin-bottom: 6px; }
+        .security-text { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+
         .social-container {
             display: flex;
             justify-content: center;
             gap: 12px;
-            margin-top: 25px;
+            margin-top: 15px;
         }
         .social-badge {
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: 6px;
-            background: var(--glass-bg);
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--glass-border);
-            padding: 8px 16px;
+            padding: 8px 14px;
             border-radius: 20px;
             color: var(--text-main);
-            font-size: 13px;
             text-decoration: none;
+            font-size: 12px;
             font-weight: 600;
             transition: all 0.2s ease;
         }
+        .social-badge.twitter-highlight {
+            background: #1da1f2;
+            border-color: transparent;
+            color: #ffffff;
+            animation: pulseGlow 2s infinite ease-in-out;
+        }
         .social-badge:hover {
-            transform: translateY(-2px);
-            background: rgba(255, 255, 255, 0.08);
-            border-color: var(--primary);
+            background: var(--primary);
+            border-color: transparent;
+            transform: translateY(-1px);
         }
-        .info-notice {
-            margin-top: 20px;
-            background: rgba(239, 68, 68, 0.05);
-            border: 1px solid rgba(239, 68, 68, 0.15);
-            border-radius: 14px;
-            padding: 12px 16px;
-            font-size: 12px;
-            color: #f87171;
-            line-height: 1.5;
-            text-align: center;
+        .social-badge.twitter-highlight:hover {
+            background: #1a91da;
         }
-        footer {
-            margin-top: 30px;
-            font-size: 11px;
-            color: var(--text-muted);
-            text-align: center;
-            letter-spacing: 0.5px;
+        
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 5px rgba(29, 161, 242, 0.4); }
+            50% { box-shadow: 0 0 15px rgba(29, 161, 242, 0.8); }
+        }
+
+        .source-link {
+            color: #10b981;
+            text-decoration: underline;
+            font-weight: 700;
+            transition: color 0.2s;
+        }
+        .source-link:hover {
+            color: #059669;
         }
     </style>
 </head>
@@ -352,13 +378,54 @@
     <span id="theme-icon">☀️</span> <span id="theme-text">Light Mode</span>
 </button>
 
+<!-- Floating Corner Social Sidebar -->
+<div class="floating-socials">
+    <a href="https://x.com/cryptoHoseyn" target="_blank" class="floating-btn" title="Follow on X (Twitter)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+    </a>
+    <a href="https://github.com/thisishoseyn" target="_blank" class="floating-btn" title="Follow on GitHub">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+    </a>
+</div>
+
 <div id="welcome-layer" class="welcome-screen">
     <div class="welcome-content">
         <h2 style="color:var(--primary); font-size:32px; font-weight:900; margin-bottom:10px; text-shadow:var(--primary-glow);">Base 2048 Arena</h2>
         <p style="color:var(--text-muted); font-size:14px; margin-bottom:20px; line-height:1.6;">
             Slide tiles and reach 2048! Once the game ends, you can instantly broadcast your highest record to the Base blockchain leaderboard.
         </p>
+        
+        <div style="background:rgba(239, 68, 68, 0.05); border:1px solid rgba(239, 68, 68, 0.15); padding:14px; border-radius:16px; text-align:left; margin-bottom:20px; font-size:12px;">
+            <b style="color:#ef4444; display:block; margin-bottom:8px;">⚠️ Security Warning:</b>
+            <span style="color:var(--text-muted); line-height:1.8; display:block; margin-bottom:8px;">
+                This smart contract is audited & open-source.
+            </span>
+            <span style="color:var(--text-muted); line-height:1.8; display:block; margin-bottom:8px;">
+                It never requests token approvals, asset access, or permissions from your wallet.
+            </span>
+            <span style="color:var(--text-muted); line-height:1.8; display:block; margin-bottom:12px;">
+                Your digital assets remain completely isolated and safe.
+            </span>
+            <span style="color:#10b981; line-height:1.6; display:block; font-weight:600; border-top:1px dashed rgba(255,255,255,0.08); padding-top:8px;">
+                You can review the game source code on <a href="https://github.com/thisishoseyn/2048onBase/" target="_blank" class="source-link">GitHub Project Repository</a> to ensure peace of mind.
+            </span>
+        </div>
+
         <button class="btn" style="margin-bottom: 15px;" onclick="startArena()">Enter Arena & Play</button>
+
+        <div style="border-top: 1px solid var(--glass-border); padding-top: 15px; margin-top: 5px;">
+            <div style="font-size: 13px; font-weight: 600; color: var(--text-main);">Made with ❤️ by Hoseyn</div>
+            <div class="social-container">
+                <a href="https://x.com/cryptoHoseyn" target="_blank" class="social-badge twitter-highlight">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                    Follow my Twitter! 🐦
+                </a>
+                <a href="https://github.com/thisishoseyn" target="_blank" class="social-badge">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    GitHub
+                </a>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -373,12 +440,6 @@
             <div id="current-score" class="score-value">0</div>
         </div>
     </header>
-
-    <!-- Farcaster Profile Context Display -->
-    <div id="fc-user-badge" class="farcaster-user-badge">
-        <img id="fc-avatar" class="farcaster-avatar" src="" alt="">
-        <span id="fc-username"></span>
-    </div>
 
     <button id="connect-btn" class="btn" onclick="connectWallet()">Connect Wallet</button>
     <div id="wallet-info" style="display:none; text-align:center; font-size:13px; color:#10b981; margin-bottom:20px; font-weight:bold;"></div>
@@ -406,24 +467,12 @@
         </ul>
     </div>
 
-    <!-- Social Media Connections & GitHub links -->
-    <div class="social-container">
-        <a href="https://github.com/thisishoseyn/2048onBase" target="_blank" class="social-badge">
-            📦 GitHub
-        </a>
-        <a href="https://x.com" target="_blank" class="social-badge">
-            🐦 Twitter / X
-        </a>
+    <div class="security-notice">
+        <div class="security-title">🛡️ 100% Secure Smart Contract</div>
+        <div class="security-text">
+            The verified contract does not store funds and **NEVER requests any token approvals or permissions** to access your wallet assets. It only saves high scores.
+        </div>
     </div>
-
-    <!-- Warning & Security Note Section -->
-    <div class="info-notice">
-        ⚠️ <strong>Security Notice:</strong> Gas fees on Base are highly optimized, but always review your wallet prompt carefully before interacting or broadcasting signals.
-    </div>
-
-    <footer>
-        © 2026 Base On-Chain Arena. All rights reserved.
-    </footer>
 </div>
 
 <script>
@@ -431,59 +480,37 @@
     const contractABI = [
         "function submitScore(uint256 _score) external",
         "function getTotalGames() external view returns (uint256)",
-        "function topGames(uint256) external view returns (address playerAddress, uint256 highScore, uint256 timestamp)"
+        "function topGames(uint256) external view returns (address playerAddress, uint256 highScore, uint256 timestamp)",
+        "event NewHighScore(address indexed player, uint256 score, uint256 timestamp)"
     ];
 
     let provider, signer, contract;
     let board = Array(16).fill(0);
     let score = 0;
     let isGameOver = false;
-    let farcasterUser = null;
-    let frameSDKInstance = null;
-
-    window.addEventListener('DOMContentLoaded', () => {
-        initGame();
-        fetchLeaderboard();
-        loadFarcasterContext();
-    });
-
-    function loadFarcasterContext() {
-        const sdk = window.FrameSDK || (window.farcaster && window.farcaster.FrameSDK);
-        
-        if (sdk) {
-            frameSDKInstance = sdk;
-            try {
-                sdk.actions.ready();
-
-                sdk.context.then((context) => {
-                    if (context && context.user) {
-                        farcasterUser = context.user;
-                        document.getElementById('fc-username').innerText = `@${farcasterUser.username}`;
-                        if (farcasterUser.pfpUrl) {
-                            document.getElementById('fc-avatar').src = farcasterUser.pfpUrl;
-                        } else {
-                            document.getElementById('fc-avatar').style.display = 'none';
-                        }
-                        document.getElementById('fc-user-badge').style.display = 'flex';
-                    }
-                }).catch(err => console.log("Context tracking initialized safely."));
-            } catch (e) {
-                console.error("Farcaster Frame SDK initialization error:", e);
-            }
-        } else {
-            console.log("Not running inside a Farcaster Frame context.");
-        }
-    }
 
     function toggleTheme() {
         const currentTheme = document.documentElement.getAttribute('data-theme');
         const nextTheme = currentTheme === 'light' ? 'dark' : 'light';
         document.documentElement.setAttribute('data-theme', nextTheme);
+        
         document.getElementById('theme-icon').innerText = nextTheme === 'light' ? '🌙' : '☀️';
         document.getElementById('theme-text').innerText = nextTheme === 'light' ? 'Dark Mode' : 'Light Mode';
     }
 
-    function startArena() { document.getElementById('welcome-layer').classList.add('hidden'); }
+    function startArena() {
+        document.getElementById('welcome-layer').classList.add('hidden');
+    }
+
+    window.addEventListener('load', () => {
+        initGame();
+        fetchLeaderboard();
+        
+        // Let Farcaster clients know the app is fully loaded
+        if (window.parent && window.parent.postMessage) {
+            window.parent.postMessage({ type: "FarcasterFrameReady" }, "*");
+        }
+    });
 
     function initGame() {
         board = Array(16).fill(0);
@@ -491,7 +518,9 @@
         isGameOver = false;
         document.getElementById('current-score').innerText = "0";
         document.getElementById('game-over').classList.remove('active');
-        addRandomTile(); addRandomTile(); updateBoardUI();
+        addRandomTile();
+        addRandomTile();
+        updateBoardUI();
     }
 
     function restartGame() { initGame(); }
@@ -592,14 +621,17 @@
     const gameBoard = document.getElementById('game-board');
 
     gameBoard.addEventListener('touchstart', (e) => {
-        touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY;
+        touchStartX = e.touches[0].clientX; 
+        touchStartY = e.touches[0].clientY;
     }, {passive: true});
 
     gameBoard.addEventListener('touchmove', (e) => {
         if (!touchStartX || !touchStartY) return;
         let diffX = e.touches[0].clientX - touchStartX;
         let diffY = e.touches[0].clientY - touchStartY;
-        if (Math.abs(diffX) > 10 || Math.abs(diffY) > 10) { if (e.cancelable) e.preventDefault(); }
+        if (Math.abs(diffX) > 10 || Math.abs(diffY) > 10) {
+            if (e.cancelable) e.preventDefault();
+        }
     }, {passive: false});
 
     gameBoard.addEventListener('touchend', (e) => {
@@ -611,44 +643,16 @@
         } else {
             if (Math.abs(diffY) > 30) handleMove(diffY > 0 ? 'DOWN' : 'UP');
         }
-        touchStartX = 0; touchStartY = 0;
+        touchStartX = 0;
+        touchStartY = 0;
     }, {passive: true});
 
     async function connectWallet() {
-        // استاندارد فریمورک نسخه 2 برای استفاده از ولت بومی فارکستر
-        if (frameSDKInstance && frameSDKInstance.wallet && frameSDKInstance.wallet.ethProvider) {
+        if (typeof window.ethereum !== 'undefined') {
             try {
-                const targetProvider = frameSDKInstance.wallet.ethProvider;
-                provider = new ethers.providers.Web3Provider(targetProvider);
-                
-                // درخواست اکانت و سوئیچ به چین بیس (0x2105)
-                await targetProvider.request({ method: 'eth_requestAccounts' });
-                try {
-                    await targetProvider.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x2105' }] });
-                } catch (switchError) {
-                    console.log("Chain switch handling via Frame Client wrapper.");
-                }
-
-                signer = provider.getSigner();
-                contract = new ethers.Contract(contractAddress, contractABI, signer);
-                const address = await signer.getAddress();
-                
-                document.getElementById('connect-btn').style.display = 'none';
-                document.getElementById('wallet-info').style.display = 'block';
-                document.getElementById('wallet-info').innerText = `Connected: ${address.substring(0,6)}...${address.substring(38)}`;
-                return;
-            } catch (err) {
-                console.error("Frame SDK internal wallet connection failed, fallback to window.ethereum", err);
-            }
-        }
-
-        // فال‌بک معمولی برای مرورگرهای وب۳ عمومی در خارج از مینی‌اپ
-        let web3Provider = window.ethereum;
-        if (typeof web3Provider !== 'undefined') {
-            try {
-                await web3Provider.request({ method: 'eth_requestAccounts' });
-                await web3Provider.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x2105' }] });
-                provider = new ethers.providers.Web3Provider(web3Provider);
+                await window.ethereum.request({ method: 'eth_requestAccounts' });
+                await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x2105' }] });
+                provider = new ethers.providers.Web3Provider(window.ethereum);
                 signer = provider.getSigner();
                 contract = new ethers.Contract(contractAddress, contractABI, signer);
                 const address = await signer.getAddress();
@@ -656,7 +660,7 @@
                 document.getElementById('wallet-info').style.display = 'block';
                 document.getElementById('wallet-info').innerText = `Connected: ${address.substring(0,6)}...${address.substring(38)}`;
             } catch (err) { alert("Wallet connection failed."); }
-        } else { alert("Please open inside a Farcaster client or web3 browser with an active wallet."); }
+        } else { alert("Please install MetaMask."); }
     }
 
     async function submitOnChainScore() {
