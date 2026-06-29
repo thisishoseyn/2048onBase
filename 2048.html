@@ -3,17 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Base On-Chain 2048</title>
-
-    <!-- Farcaster Mini App v2 Meta Tags -->
+    <title>Base On-Chain 2048 - Farcaster Edition</title>
+    
+    <!-- Farcaster Frame v2 Meta Tags -->
     <meta property="fc:frame" content="vnext" />
-    <meta property="fc:frame:image" content="https://2048onbase-eosin.vercel.app/screenshot.png" />
-    <meta property="fc:frame:version" content="v2" />
-    <meta property="fc:frame:type" content="app" />
-    <meta property="fc:frame:app:name" content="Base 2048" />
-    <meta property="fc:frame:app:manifest" content="https://2048onbase-eosin.vercel.app/manifest.json" />
-
+    <meta property="fc:frame:image" content="https://raw.githubusercontent.com/thisishoseyn/2048onBase/main/frame-image.png" />
+    <meta property="fc:frame:button:1" content="Play Arena" />
+    <meta property="fc:frame:button:1:action" content="splash" />
+    
+    <!-- External SDKs -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js" type="text/javascript"></script>
+    <!-- Farcaster Frame SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@farcaster/frame-sdk@0.0.17/dist/index.min.js"></script>
+
     <style>
         /* Modern Design System Variables */
         :root {
@@ -82,7 +84,6 @@
         }
         .theme-toggle:hover { transform: scale(1.05); }
 
-        /* Floating Social Sidebar - Corner */
         .floating-socials {
             position: fixed;
             bottom: 25px;
@@ -379,7 +380,6 @@
     <span id="theme-icon">☀️</span> <span id="theme-text">Light Mode</span>
 </button>
 
-<!-- Floating Corner Social Sidebar -->
 <div class="floating-socials">
     <a href="https://x.com/cryptoHoseyn" target="_blank" class="floating-btn" title="Follow on X (Twitter)">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
@@ -490,6 +490,21 @@
     let score = 0;
     let isGameOver = false;
 
+    // Farcaster Frame v2 Context Setup
+    window.addEventListener('load', () => {
+        initGame();
+        fetchLeaderboard();
+        
+        // Initialize Farcaster SDK safely
+        if (window.window.farcaster && window.window.farcaster.FrameSDK) {
+            try {
+                window.window.farcaster.FrameSDK.actions.ready();
+            } catch (e) {
+                console.error("Farcaster SDK initialization error:", e);
+            }
+        }
+    });
+
     function toggleTheme() {
         const currentTheme = document.documentElement.getAttribute('data-theme');
         const nextTheme = currentTheme === 'light' ? 'dark' : 'light';
@@ -502,11 +517,6 @@
     function startArena() {
         document.getElementById('welcome-layer').classList.add('hidden');
     }
-
-    window.addEventListener('load', () => {
-        initGame();
-        fetchLeaderboard();
-    });
 
     function initGame() {
         board = Array(16).fill(0);
@@ -644,11 +654,14 @@
     }, {passive: true});
 
     async function connectWallet() {
-        if (typeof window.ethereum !== 'undefined') {
+        // Fallback to regular injected provider if window.ethereum exists, else look for Farcaster provider context
+        let targetProvider = window.ethereum;
+        
+        if (typeof targetProvider !== 'undefined') {
             try {
-                await window.ethereum.request({ method: 'eth_requestAccounts' });
-                await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x2105' }] });
-                provider = new ethers.providers.Web3Provider(window.ethereum);
+                await targetProvider.request({ method: 'eth_requestAccounts' });
+                await targetProvider.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x2105' }] });
+                provider = new ethers.providers.Web3Provider(targetProvider);
                 signer = provider.getSigner();
                 contract = new ethers.Contract(contractAddress, contractABI, signer);
                 const address = await signer.getAddress();
@@ -656,7 +669,7 @@
                 document.getElementById('wallet-info').style.display = 'block';
                 document.getElementById('wallet-info').innerText = `Connected: ${address.substring(0,6)}...${address.substring(38)}`;
             } catch (err) { alert("Wallet connection failed."); }
-        } else { alert("Please install MetaMask."); }
+        } else { alert("Please open inside a web3 browser or Farcaster client with an active wallet."); }
     }
 
     async function submitOnChainScore() {
