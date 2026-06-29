@@ -418,7 +418,7 @@
 
     <!-- Warning & Security Note Section -->
     <div class="info-notice">
-        ⚠️ <strong>Security Notice:</strong> Gas fees on Base are highly optimized, but always review your wallet prompt carefully before interacting or broadcast signals.
+        ⚠️ <strong>Security Notice:</strong> Gas fees on Base are highly optimized, but always review your wallet prompt carefully before interacting or broadcasting signals.
     </div>
 
     <footer>
@@ -439,6 +439,7 @@
     let score = 0;
     let isGameOver = false;
     let farcasterUser = null;
+    let frameSDKInstance = null;
 
     window.addEventListener('DOMContentLoaded', () => {
         initGame();
@@ -447,12 +448,11 @@
     });
 
     function loadFarcasterContext() {
-        // شناسایی دقیق آبجکت مینی‌اپ کلاینت از اسکوپ جهانی بدون تکیه به ساختارهای قدیمی
         const sdk = window.FrameSDK || (window.farcaster && window.farcaster.FrameSDK);
         
         if (sdk) {
+            frameSDKInstance = sdk;
             try {
-                // فوراً متد ردی را صدا بزن تا لودینگ کلاینت متوقف شده و اپ رندر شود
                 sdk.actions.ready();
 
                 sdk.context.then((context) => {
@@ -615,12 +615,40 @@
     }, {passive: true});
 
     async function connectWallet() {
-        let targetProvider = window.ethereum;
-        if (typeof targetProvider !== 'undefined') {
+        // استاندارد فریمورک نسخه 2 برای استفاده از ولت بومی فارکستر
+        if (frameSDKInstance && frameSDKInstance.wallet && frameSDKInstance.wallet.ethProvider) {
             try {
-                await targetProvider.request({ method: 'eth_requestAccounts' });
-                await targetProvider.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x2105' }] });
+                const targetProvider = frameSDKInstance.wallet.ethProvider;
                 provider = new ethers.providers.Web3Provider(targetProvider);
+                
+                // درخواست اکانت و سوئیچ به چین بیس (0x2105)
+                await targetProvider.request({ method: 'eth_requestAccounts' });
+                try {
+                    await targetProvider.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x2105' }] });
+                } catch (switchError) {
+                    console.log("Chain switch handling via Frame Client wrapper.");
+                }
+
+                signer = provider.getSigner();
+                contract = new ethers.Contract(contractAddress, contractABI, signer);
+                const address = await signer.getAddress();
+                
+                document.getElementById('connect-btn').style.display = 'none';
+                document.getElementById('wallet-info').style.display = 'block';
+                document.getElementById('wallet-info').innerText = `Connected: ${address.substring(0,6)}...${address.substring(38)}`;
+                return;
+            } catch (err) {
+                console.error("Frame SDK internal wallet connection failed, fallback to window.ethereum", err);
+            }
+        }
+
+        // فال‌بک معمولی برای مرورگرهای وب۳ عمومی در خارج از مینی‌اپ
+        let web3Provider = window.ethereum;
+        if (typeof web3Provider !== 'undefined') {
+            try {
+                await web3Provider.request({ method: 'eth_requestAccounts' });
+                await web3Provider.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x2105' }] });
+                provider = new ethers.providers.Web3Provider(web3Provider);
                 signer = provider.getSigner();
                 contract = new ethers.Contract(contractAddress, contractABI, signer);
                 const address = await signer.getAddress();
@@ -628,7 +656,7 @@
                 document.getElementById('wallet-info').style.display = 'block';
                 document.getElementById('wallet-info').innerText = `Connected: ${address.substring(0,6)}...${address.substring(38)}`;
             } catch (err) { alert("Wallet connection failed."); }
-        } else { alert("Please open inside a web3 browser or Farcaster client with an active wallet."); }
+        } else { alert("Please open inside a Farcaster client or web3 browser with an active wallet."); }
     }
 
     async function submitOnChainScore() {
