@@ -1,0 +1,7 @@
+{
+  "name": "Base On-Chain 2048",
+  "icon": "https://2048onbase-eosin.vercel.app/icon.png",
+  "description": "Play 2048 on Base blockchain and submit your score!",
+  "aboutUrl": "https://github.com/thisishoseyn/2048onBase",
+  "statusUrl": "https://2048onbase-eosin.vercel.app"
+}
