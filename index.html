@@ -12,6 +12,8 @@
     <meta property="fc:frame:button:1:action" content="link" />
     <meta property="fc:frame:button:1:target" content="https://thisishoseyn.github.io/2048onBase/" />
 
+    <!-- Farcaster Frame v2 Official SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@farcaster/frame-sdk@0.0.17/dist/index.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js" type="text/javascript"></script>
     <style>
         /* Modern Design System Variables */
@@ -502,13 +504,21 @@
         document.getElementById('welcome-layer').classList.add('hidden');
     }
 
-    window.addEventListener('load', () => {
+    // Updated for Farcaster Frame v2 SDK initialization
+    window.addEventListener('load', async () => {
         initGame();
         fetchLeaderboard();
         
-        // Let Farcaster clients know the app is fully loaded
-        if (window.parent && window.parent.postMessage) {
-            window.parent.postMessage({ type: "FarcasterFrameReady" }, "*");
+        try {
+            if (window.farcaster && window.farcaster.sdk) {
+                await window.farcaster.sdk.actions.ready();
+                console.log("Farcaster SDK signaled ready.");
+            } else if (window.parent && window.parent.postMessage) {
+                // Legacy fallback if needed
+                window.parent.postMessage({ type: "FarcasterFrameReady" }, "*");
+            }
+        } catch (error) {
+            console.error("Farcaster SDK ready error:", error);
         }
     });
 
@@ -672,6 +682,7 @@
             await tx.wait();
             alert(`Successfully submitted score of ${score} to Base!`);
             submitBtn.innerText = "Submitted ✅";
+            submitBtn.disabled = false;
             fetchLeaderboard();
         } catch (err) {
             alert("Transaction failed.");
