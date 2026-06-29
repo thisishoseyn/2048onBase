@@ -299,17 +299,6 @@
         .leaderboard-item:last-child { border-bottom: none; }
         .player-addr { font-family: monospace; color: var(--text-muted); }
         .player-score { font-weight: 800; color: #10b981; }
-
-        .security-notice {
-            margin-top: 25px;
-            background: rgba(16, 185, 129, 0.05);
-            border: 1px dashed rgba(16, 185, 129, 0.2);
-            border-radius: 16px;
-            padding: 15px;
-            text-align: left;
-        }
-        .security-title { font-size: 13px; font-weight: 700; color: #10b981; margin-bottom: 6px; }
-        .security-text { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
     </style>
 </head>
 <body>
@@ -324,17 +313,6 @@
         <p style="color:var(--text-muted); font-size:14px; margin-bottom:20px; line-height:1.6;">
             Slide tiles and reach 2048! Once the game ends, you can instantly broadcast your highest record to the Base blockchain leaderboard.
         </p>
-        
-        <div style="background:rgba(239, 68, 68, 0.05); border:1px solid rgba(239, 68, 68, 0.15); padding:14px; border-radius:16px; text-align:left; margin-bottom:20px; font-size:12px;">
-            <b style="color:#ef4444; display:block; margin-bottom:8px;">⚠️ Security Warning:</b>
-            <span style="color:var(--text-muted); line-height:1.8; display:block; margin-bottom:8px;">
-                This smart contract is audited & open-source.
-            </span>
-            <span style="color:var(--text-muted); line-height:1.8; display:block; margin-bottom:8px;">
-                It never requests token approvals, asset access, or permissions from your wallet.
-            </span>
-        </div>
-
         <button class="btn" style="margin-bottom: 15px;" onclick="startArena()">Enter Arena & Play</button>
     </div>
 </div>
@@ -398,35 +376,34 @@
     let isGameOver = false;
     let farcasterUser = null;
 
-    window.addEventListener('load', () => {
+    // Fixed Lifecycle Logic to handle standalone and inside-iframe sessions correctly
+    window.addEventListener('DOMContentLoaded', () => {
         initGame();
         fetchLeaderboard();
         loadFarcasterContext();
     });
 
-    async function loadFarcasterContext() {
+    function loadFarcasterContext() {
+        // Safe detection check for Frame environment
         if (window.farcaster && window.farcaster.FrameSDK) {
             try {
-                // Signal to Farcaster client that Frame is ready
                 const sdk = window.farcaster.FrameSDK;
                 sdk.actions.ready();
 
-                // Fetch context data (User identity details)
-                const context = await sdk.context;
-                if (context && context.user) {
-                    farcasterUser = context.user;
-                    
-                    // Update UI components with Farcaster profile information
-                    document.getElementById('fc-username').innerText = `@${farcasterUser.username}`;
-                    if (farcasterUser.pfpUrl) {
-                        document.getElementById('fc-avatar').src = farcasterUser.pfpUrl;
-                    } else {
-                        document.getElementById('fc-avatar').style.display = 'none';
+                sdk.context.then((context) => {
+                    if (context && context.user) {
+                        farcasterUser = context.user;
+                        document.getElementById('fc-username').innerText = `@${farcasterUser.username}`;
+                        if (farcasterUser.pfpUrl) {
+                            document.getElementById('fc-avatar').src = farcasterUser.pfpUrl;
+                        } else {
+                            document.getElementById('fc-avatar').style.style.display = 'none';
+                        }
+                        document.getElementById('fc-user-badge').style.display = 'flex';
                     }
-                    document.getElementById('fc-user-badge').style.display = 'flex';
-                }
+                }).catch(err => console.log("Context baseline error ignored safely."));
             } catch (e) {
-                console.error("Farcaster Context fetch failed:", e);
+                console.error("Farcaster SDK boot exception:", e);
             }
         }
     }
